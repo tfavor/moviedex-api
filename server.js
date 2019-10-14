@@ -8,13 +8,12 @@ require('dotenv').config();
 const app = express();
 
 
-app.use(morgan('dev'))
+const morganSetting = process.env.NODE_ENV === 'production' ? 'tiny' : 'common'
+app.use(morgan(morganSetting))
 app.use(helmet())
 app.use(cors())
 
 app.use(function validateBearerToken(req, res, next) {
-    console.log('validate bearer token middleware')
-
     const apiToken = process.env.API_TOKEN;
     const authToken = req.get('Authorization')
     
@@ -29,17 +28,17 @@ function handleGetMovie(req, res) {
     let results = movies;
 
     if(req.query.genre) {
-        results = movies.filter(movie => 
+        results = results.filter(movie => 
             movie.genre.toLowerCase().includes(req.query.genre.toLowerCase()))
     }
 
     if(req.query.country) {
-        results = movies.filter(movie =>
+        results = results.filter(movie =>
             movie.country.toLowerCase().includes(req.query.country.toLowerCase()))
     }
 
     if(req.query.avg_vote) {
-        results = movies.filter(movie => 
+        results = results.filter(movie => 
             movie.avg_vote >= req.query.avg_vote)
     }
 
@@ -48,6 +47,7 @@ function handleGetMovie(req, res) {
 
 app.get('/movies', handleGetMovie)
 
-app.listen(8000, () => {
-    console.log('Server listening on PORT 8000');
+const PORT =  8000;
+
+app.listen(PORT, () => {
 })
